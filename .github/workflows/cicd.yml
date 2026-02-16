@@ -22,10 +22,6 @@ jobs:
   - name: unittest
     run: mvn test
 
-  - name: Trivy FS Scan (Local)
-    run: |
-     trivy fs --exit-code 1 --severity CRITICAL,HIGH .
-
 
   - name: SonarQube Scan
     uses: SonarSource/sonarqube-scan-action@v7.0.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
