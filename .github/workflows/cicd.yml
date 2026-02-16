@@ -60,4 +60,4 @@ jobs:
     with:
       context: . # This tells Docker to look in the current directory
       push: true
-      tags: user/app:latest
+      tags: naveen0101/app:latest
