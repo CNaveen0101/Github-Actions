@@ -34,13 +34,13 @@ jobs:
   - name: upload
     uses: actions/upload-artifact@v4
     with:
-     name: GC-Bank
+     name: bankapp
      path: /target/*.jar
 
   - name: Download JAR artifact
     uses: actions/download-artifact@v4
     with:
-      name: GC-Bank
+      name: bankapp
       path: app  # This creates the /app folder Docker is looking for
 
   - name: Login to Docker Hub
