@@ -10,7 +10,7 @@ jobs:
 
   steps:
   - name: Checkout
-    uses: actions/checkout-code@v4
+    uses: actions/checkout@v4
 
   - name: Javainstall
     uses: actions/setup-java@v4
