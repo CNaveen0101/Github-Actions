@@ -55,9 +55,9 @@ jobs:
   - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v3
 
-  - name: Build and push
-    uses: docker/build-push-action@v6
-    with:
-      context: . # This tells Docker to look in the current directory
+  -  name: Build and push
+     uses: docker/build-push-action@v6
+     with:
+      context: .
       push: true
-      tags: naveen0101/app:latest
+      tags: ${{ vars.DOCKERHUB_USERNAME }}/app:latest
