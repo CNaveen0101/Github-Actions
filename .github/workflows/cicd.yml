@@ -17,5 +17,16 @@ jobs:
     with:
      distribution: temurin
      java-version: 17
+     cache: maven
+
+ Buildtest:
+    runs-on: newrunner
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: unittest
+      run: mvn test
 
 
