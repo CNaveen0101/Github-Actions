@@ -1,4 +1,4 @@
-name: newfile
+name: newfiles
 
 on:
   push:
