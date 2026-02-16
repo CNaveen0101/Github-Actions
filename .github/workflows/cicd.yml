@@ -22,6 +22,10 @@ jobs:
   - name: unittest
     run: mvn test
 
+  - name: Trivy FS Scan (Local)
+    run: |
+     trivy fs --exit-code 1 --severity CRITICAL,HIGH .
+
 
   - name: SonarQube Scan
     uses: SonarSource/sonarqube-scan-action@v7.0.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
@@ -52,18 +56,15 @@ jobs:
   - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v3
 
-  -  name: Build and push
-     uses: docker/build-push-action@v6
-     with:
+  - name: Build and push
+    uses: docker/build-push-action@v6
+    with:
       context: .
       push: true
-      load: true
-      tags: ${{ vars.DOCKERHUB_USERNAME }}/app:latest
+      load: true  # <--- THIS IS THE KEY FIX
+      tags: ${{ vars.DOCKERHUB_USERNAME }}/bankapp:latest
 
-  - name: Build an image from Dockerfile
-    run: docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
-
-  -  name: Trivy Image Scan (Local)
-     run: |
-      trivy image --image-src docker --exit-code 1 --severity CRITICAL ${{ vars.DOCKERHUB_USERNAME }}/bankapp:latest
+  - name: Trivy Image Scan (Local)
+    run: |
+        trivy image --exit-code 1 --severity CRITICAL ${{ vars.DOCKERHUB_USERNAME }}/bankapp:latest
 
