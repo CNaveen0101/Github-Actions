@@ -19,19 +19,14 @@ jobs:
      java-version: 17
      cache: maven
 
- Buildtest:
-    runs-on: newrunner
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: unittest
-      run: mvn test
+  - name: unittest
+    run: mvn test
 
 
-    - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v7.0.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  - name: SonarQube Scan
+    uses: SonarSource/sonarqube-scan-action@v7.0.0 # Ex: v4.1.0 or sha1, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  - name: Compiling
+    run: mvn package
