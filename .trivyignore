@@ -1,0 +1,2 @@
+# Ignore path traversal in Spring
+CVE-2024-38819
