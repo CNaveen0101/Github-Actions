@@ -18,3 +18,14 @@ jobs:
      distribution: temurin
      java-version: 17
      cache: maven
+
+ test:
+  runs-on: nrunnerlabel
+  needs: setup
+
+  steps:
+  - name: Checkout
+    uses: actions/checkout@v4
+
+  - name: unittest
+    run: mvn test
