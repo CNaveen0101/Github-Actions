@@ -79,3 +79,11 @@ jobs:
       load: true  # <--- THIS IS THE KEY FIX
       tags: ${{ vars.DOCKERHUB_USERNAME }}/bankapp:latest
 
+  - name: Deploy to K3s Cluster
+    run: |
+        export KUBECONFIG=$HOME/.kube/config
+        # This one command handles both the deployment and the service
+        kubectl apply -f k8s-spec.yaml
+        # This ensures the new image is pulled immediately
+        kubectl rollout restart deployment/bankapp-deployment
+
