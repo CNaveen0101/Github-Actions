@@ -16,7 +16,7 @@ spec:
       - name: bankapp
         # Make sure this matches your Docker Hub image name
         image: naveen0101/bankapp:latest 
-        imagePullPolicy: always
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
 ---
