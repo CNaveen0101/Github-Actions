@@ -15,7 +15,7 @@ spec:
       containers:
       - name: bankapp
         # Make sure this matches your Docker Hub image name
-        image: ${{ vars.DOCKERHUB_USERNAME }}/bankapp:latest 
+        image: naveen0101/bankapp:latest 
         ports:
         - containerPort: 8080
 ---
