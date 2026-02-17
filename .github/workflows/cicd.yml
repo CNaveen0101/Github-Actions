@@ -77,7 +77,7 @@ jobs:
       context: .
       push: true
       load: true  # <--- THIS IS THE KEY FIX
-      tags: ${{ vars.DOCKERHUB_USERNAME }}/bankapp:latest
+      tags: naveen0101/bankapp:latest
 
   - name: Deploy to K3s Cluster
     run: |
