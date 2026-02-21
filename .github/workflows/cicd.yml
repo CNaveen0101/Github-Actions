@@ -1,89 +1,85 @@
-name: newfiles
+name: CICD
 
 on:
   push:
-   branches: main
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
- setup:
-  runs-on: nrunnerlabel
+  build:
 
-  steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+    runs-on: myselfrunner
 
-  - name: Javainstall
-    uses: actions/setup-java@v4
-    with:
-     distribution: temurin
-     java-version: 17
-     cache: maven
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
 
- test:
-  runs-on: nrunnerlabel
-  needs: setup
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
 
-  steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+    - name: Maven unit test
+      run: mvn test
 
-  - name: unittest
-    run: mvn test
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v7.0.0
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+
+    - name: Manual Trivy Setup
+      uses: aquasecurity/setup-trivy@v0.2.0
+      with:
+        cache: true
+        version: v0.69.1
+
+    - name: Run Trivy vulnerability scanner in repo mode
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        ignore-unfixed: true
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL'
+        skip-setup-trivy: true
+
+    - name: packaging the application
+      run: mvn package
+
+    - name: upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+       name: myapp
+       path: target/*.jar
+
+    - name: Download artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: myapp
     
-  - name: Trivy Installation
-    run: |
-      sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-      wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-      echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-      sudo apt-get update -y
-      sudo apt-get install -y trivy
+    - name: Display structure of downloaded files
+      run: ls -R
 
-  - name: Trivy FS Scan
-    run: trivy fs --format table -o fs-report.json .
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        push: true
+        tags: user/app:latest
 
-  - name: SonarQube Scan
-    uses: SonarSource/sonarqube-scan-action@v5.0.0
-    env:
-     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-     SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
-
-  - name: Compiling
-    run: mvn package
-
-  - name: upload
-    uses: actions/upload-artifact@v4
-    with:
-     name: bankapp
-     path: target/*.jar
-
-  - name: Download JAR artifact
-    uses: actions/download-artifact@v4
-    with:
-      name: bankapp
-      path: app  # This creates the /app folder Docker is looking fo
-
-  - name: Login to Docker Hub
-    uses: docker/login-action@v3
-    with:
-      username: ${{ vars.DOCKERHUB_USERNAME }}
-      password: ${{ secrets.DOCKERHUB_TOKEN }}
-        
-  - name: Set up Docker Buildx
-    uses: docker/setup-buildx-action@v3
-
-  - name: Build and push
-    uses: docker/build-push-action@v6
-    with:
-      context: .
-      push: true
-      load: true  # <--- THIS IS THE KEY FIX
-      tags: naveen0101/bankapp:latest
-
-  - name: Deploy to K3s Cluster
-    run: |
-        export KUBECONFIG=$HOME/.kube/config
-        # This one command handles both the deployment and the service
-        kubectl apply -f k8s-spec.yaml
-        # This ensures the new image is pulled immediately
-        kubectl rollout restart deployment/bankapp-deployment
 
